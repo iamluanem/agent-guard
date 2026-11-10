@@ -59,6 +59,14 @@ services:
       migrate: {condition: service_completed_successfully}
       redis: {condition: service_healthy}
 
+  web:
+    build: ./frontend
+    environment:
+      AG_API_URL: http://api:8000
+      AG_ADMIN_API_KEY: ${AG_ADMIN_API_KEY:-}
+    ports: ["3000:3000"]
+    depends_on: [api]
+
   jaeger:
     image: jaegertracing/all-in-one:1.60
     profiles: [observability]
