@@ -2,7 +2,7 @@
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import Field, SecretStr
+from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -34,6 +34,13 @@ class Settings(BaseSettings):
 
     cors_origins: list[str] = ["http://localhost:3000"]
     otel_exporter_endpoint: str | None = None
+
+    @field_validator("redis_url", "admin_api_key", "anthropic_api_key", "openai_api_key",
+                     "otel_exporter_endpoint", mode="before")
+    @classmethod
+    def _blank_is_unset(cls, v):
+        """Docker Compose passes unset optional vars as "". Treat that as not configured."""
+        return None if isinstance(v, str) and not v.strip() else v
 
 
 @lru_cache

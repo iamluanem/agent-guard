@@ -182,3 +182,18 @@ def test_intent_extraction_is_advisory(client):
     r = client.post("/v1/intents/extract", json={"text": text})
     body = r.json()
     assert body["advisory"] is True and body["proposal"]["max_amount_cents"] == 15_000
+
+
+def test_blank_optional_settings_are_unset():
+    from app.config import Settings
+    s = Settings(signing_secret="a", webhook_secret="b", admin_api_key="", redis_url=" ", openai_api_key="")
+    assert s.admin_api_key is None and s.redis_url is None and s.openai_api_key is None
+
+
+def test_admin_key_enforced_when_set(client, monkeypatch):
+    from pydantic import SecretStr
+
+    from app.config import get_settings
+    monkeypatch.setattr(get_settings(), "admin_api_key", SecretStr("k1"))
+    assert client.get("/v1/metrics/overview").status_code == 401
+    assert client.get("/v1/metrics/overview", headers={"X-Admin-Key": "k1"}).status_code == 200
