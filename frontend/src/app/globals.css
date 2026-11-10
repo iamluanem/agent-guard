@@ -1,0 +1,76 @@
+@import "tailwindcss";
+@import "@fontsource-variable/schibsted-grotesk";
+@import "@fontsource/jetbrains-mono/400.css";
+
+/*
+  AgentGuard palette — a clearing-house ledger, not a trading terminal.
+  Three money outcomes each own one hue, used consistently across every screen:
+    prevented (teal) · recovered (blue) · simulated payout (ochre, always hatched)
+*/
+@theme {
+  --color-paper: #f3f5f6;
+  --color-surface: #ffffff;
+  --color-ink: #18212b;
+  --color-muted: #5e6a78;
+  --color-faint: #8b95a1;
+  --color-rule: #d9dfe5;
+  --color-rule-strong: #b9c2cc;
+
+  --color-prevented: #17706a;
+  --color-prevented-soft: #e3f1ef;
+  --color-recovered: #2b59c3;
+  --color-recovered-soft: #e6ecfa;
+  --color-payout: #a86b12;
+  --color-payout-soft: #f8eedc;
+  --color-danger: #b3261e;
+  --color-danger-soft: #fbe9e7;
+  --color-pending: #8a5a00;
+  --color-pending-soft: #fdf1d6;
+
+  --font-sans: "Schibsted Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+html {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-recovered);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Simulated money is never drawn as solid: the hatch is the "sandbox" signal. */
+.hatch {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--color-payout) 0 6px,
+    color-mix(in srgb, var(--color-payout) 55%, white) 6px 10px
+  );
+}
+
+.id {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  letter-spacing: -0.01em;
+}
+
+@keyframes grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.bar-in { transform-origin: left; animation: grow 900ms cubic-bezier(.2,.7,.2,1) both; }
+
+@keyframes flash {
+  from { background: var(--color-recovered-soft); }
+  to { background: transparent; }
+}
+.flash { animation: flash 1.6s ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bar-in, .flash { animation: none; }
+}
