@@ -19,6 +19,8 @@
 
 The LLM is **advisory only**: it proposes mandate constraints from natural language and writes incident narratives. It never authorizes payments, refunds or payouts.
 
+![Overview](docs/screenshots/overview.png)
+
 ## Quick start (Docker)
 
 ```bash
@@ -27,13 +29,17 @@ cp .env.example .env
 docker compose up --build
 ```
 
-- API + OpenAPI docs: http://localhost:8000/docs
+- Dashboard: http://localhost:3000
+- API + OpenAPI docs: http://localhost:8000/docs (operator endpoints need `X-Admin-Key` when `AG_ADMIN_API_KEY` is set; the dashboard injects it server-side)
 - Migrations and seed data run automatically (`migrate` service).
 - Tracing: `docker compose --profile observability up` and set `AG_OTEL_EXPORTER_ENDPOINT=http://jaeger:4318` → Jaeger at http://localhost:16686
 
 ## Run the six demo scenarios
 
+From the dashboard overview, press **Run** on any scenario, or with curl:
+
 ```bash
+# add -H "X-Admin-Key: $AG_ADMIN_API_KEY" if you set one
 for n in 1 2 3 4 5 6; do
   curl -s -X POST localhost:8000/v1/demo/scenarios/$n | python -m json.tool | head -20
 done
@@ -51,6 +57,23 @@ curl -s localhost:8000/v1/audit/verify
 | 6 | Merchant refund fails | wrong size, refund declined → claim → **simulated payout** (disputed − deductible) |
 
 Overview metrics keep **prevented loss**, **recovered funds** and **simulated protection payouts** separate.
+
+## Dashboard
+
+| Screen | What you can do |
+|---|---|
+| Overview | See money prevented / recovered / paid out, run the six scenarios, watch live events (SSE) |
+| Live transactions | Filter by state, open a transaction's state path, violations, webhooks; approve or reject over-budget purchases |
+| Protection policies | Turn a customer's sentence into proposed constraints (advisory), sign a mandate, inspect versions and signature, revoke |
+| Incidents | Authorized vs. executed comparison, findings, narrative, recovery and claim |
+| Recovery center | Cancellation / refund progress, retry due actions |
+| Claims | Eligibility checks, human review capped by policy, protection policy, sandbox ledger |
+| Audit trail | Filter by entity / correlation / action, verify the hash chain |
+
+| | |
+|---|---|
+| ![Approval](docs/screenshots/approval.png) | ![Incident](docs/screenshots/incident.png) |
+| ![Claim review](docs/screenshots/claim-review.png) | ![Audit](docs/screenshots/audit.png) |
 
 ## Integrate an agent
 
@@ -84,6 +107,8 @@ export AG_SIGNING_SECRET=dev-sign AG_WEBHOOK_SECRET=dev-hook \
 alembic upgrade head && python -m app.seed
 uvicorn app.main:app --reload          # API
 python -m app.worker                   # outbox relay, recovery retries, deferred-event sweeper
+
+cd ../frontend && npm install && npm run dev   # dashboard on :3000 (AG_API_URL defaults to http://localhost:8000)
 ```
 
 ## Tests
@@ -95,7 +120,7 @@ AG_TEST_DATABASE_URL=postgresql+psycopg://…/agentguard_test pytest   # Postgre
 ruff check .
 ```
 
-53 tests: policy rules, state machine, intent extraction, all six scenarios through HTTP, idempotency, webhook signature / dedupe / ordering, mandate tampering, retries → escalation, human claim review, audit-chain tampering, and 12-thread races proving exactly-once execution. CI runs them on PostgreSQL and SQLite, checks that migrations match the models, and builds the image.
+53 tests: policy rules, state machine, intent extraction, all six scenarios through HTTP, idempotency, webhook signature / dedupe / ordering, mandate tampering, retries → escalation, human claim review, audit-chain tampering, and 12-thread races proving exactly-once execution. CI runs them on PostgreSQL and SQLite, checks that migrations match the models, lints and type-checks the dashboard, and builds both images.
 
 ## Repository layout
 
@@ -109,7 +134,8 @@ backend/
   app/worker.py      outbox → Redis Streams, retries, sweeper
   migrations/        Alembic
   tests/
-docs/                PRD, architecture, database schema, API contracts, OpenAPI
+frontend/            Next.js dashboard (BFF proxy in src/app/api/ag)
+docs/                PRD, architecture, database schema, API contracts, OpenAPI, write-up
 ```
 
 ## Documentation
@@ -118,6 +144,7 @@ docs/                PRD, architecture, database schema, API contracts, OpenAPI
 - [Architecture](docs/ARCHITECTURE.md) — diagrams, boundaries, exactly-once design, AWS mapping
 - [Database schema](docs/DATABASE.md)
 - [API contracts](docs/API.md) · [OpenAPI](docs/openapi.json)
+- [Engineering write-up](docs/LINKEDIN.md)
 
 ## Configuration
 
