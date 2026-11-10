@@ -1,0 +1,21 @@
+[project]
+name = "agentguard"
+version = "0.1.0"
+description = "Trust, transaction monitoring and financial recovery for autonomous AI agents"
+requires-python = ">=3.12"
+# Runtime deps are pinned in requirements.txt (used by Docker and CI).
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["B008"]
+
+[tool.ruff.lint.per-file-ignores]
+"migrations/*" = ["E501", "I001", "UP"]
