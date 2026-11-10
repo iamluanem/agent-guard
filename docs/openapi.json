@@ -1,0 +1,2770 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "AgentGuard API",
+    "description": "Trust, transaction monitoring and financial recovery for autonomous AI agents. Payments, merchants and reimbursements in this MVP are SIMULATED (sandbox).",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Health Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/agent/transactions": {
+      "post": {
+        "tags": [
+          "agent"
+        ],
+        "summary": "Submit Transaction",
+        "description": "Validate (and optionally execute) a purchase attempt. Retrying with the same idempotency_key is safe.",
+        "operationId": "submit_transaction_v1_agent_transactions_post",
+        "parameters": [
+          {
+            "name": "x-agent-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Agent-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AttemptRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/agent/transactions/{tx_id}": {
+      "get": {
+        "tags": [
+          "agent"
+        ],
+        "summary": "Agent Get Transaction",
+        "description": "An agent can read only its own transactions.",
+        "operationId": "agent_get_transaction_v1_agent_transactions__tx_id__get",
+        "parameters": [
+          {
+            "name": "tx_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tx Id"
+            }
+          },
+          {
+            "name": "x-agent-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Agent-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Agent Get Transaction V1 Agent Transactions  Tx Id  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/webhooks/{source}": {
+      "post": {
+        "tags": [
+          "webhooks"
+        ],
+        "summary": "Receive Webhook",
+        "description": "Provider webhooks (HMAC-SHA256 of the raw body in X-Signature). At-least-once delivery is safe.",
+        "operationId": "receive_webhook_v1_webhooks__source__post",
+        "parameters": [
+          {
+            "name": "source",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "payment",
+                "merchant"
+              ],
+              "type": "string",
+              "title": "Source"
+            }
+          },
+          {
+            "name": "x-signature",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Signature"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Receive Webhook V1 Webhooks  Source  Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/customers": {
+      "post": {
+        "tags": [
+          "identity"
+        ],
+        "summary": "Create Customer",
+        "operationId": "create_customer_v1_customers_post",
+        "parameters": [
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Create Customer V1 Customers Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "identity"
+        ],
+        "summary": "List Customers",
+        "operationId": "list_customers_v1_customers_get",
+        "parameters": [
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "title": "Response List Customers V1 Customers Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/agents": {
+      "post": {
+        "tags": [
+          "identity"
+        ],
+        "summary": "Create Agent",
+        "operationId": "create_agent_v1_agents_post",
+        "parameters": [
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Create Agent V1 Agents Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "identity"
+        ],
+        "summary": "List Agents",
+        "operationId": "list_agents_v1_agents_get",
+        "parameters": [
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "title": "Response List Agents V1 Agents Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/merchants": {
+      "get": {
+        "tags": [
+          "identity"
+        ],
+        "summary": "List Merchants",
+        "operationId": "list_merchants_v1_merchants_get",
+        "parameters": [
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "title": "Response List Merchants V1 Merchants Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/intents/extract": {
+      "post": {
+        "tags": [
+          "ai"
+        ],
+        "summary": "Extract Intent",
+        "description": "LLM-assisted proposal of mandate constraints. ADVISORY: the customer must confirm it via POST /v1/mandates.",
+        "operationId": "extract_intent_v1_intents_extract_post",
+        "parameters": [
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntentIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Extract Intent V1 Intents Extract Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/mandates": {
+      "post": {
+        "tags": [
+          "authorization"
+        ],
+        "summary": "Create Mandate",
+        "operationId": "create_mandate_v1_mandates_post",
+        "parameters": [
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MandateIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Create Mandate V1 Mandates Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "authorization"
+        ],
+        "summary": "List Mandates",
+        "operationId": "list_mandates_v1_mandates_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500,
+              "default": 100,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "title": "Response List Mandates V1 Mandates Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/mandates/{mandate_id}": {
+      "get": {
+        "tags": [
+          "authorization"
+        ],
+        "summary": "Get Mandate",
+        "operationId": "get_mandate_v1_mandates__mandate_id__get",
+        "parameters": [
+          {
+            "name": "mandate_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Mandate Id"
+            }
+          },
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Mandate V1 Mandates  Mandate Id  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/mandates/{mandate_id}/amend": {
+      "post": {
+        "tags": [
+          "authorization"
+        ],
+        "summary": "Amend",
+        "operationId": "amend_v1_mandates__mandate_id__amend_post",
+        "parameters": [
+          {
+            "name": "mandate_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Mandate Id"
+            }
+          },
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AmendIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Amend V1 Mandates  Mandate Id  Amend Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/mandates/{mandate_id}/revoke": {
+      "post": {
+        "tags": [
+          "authorization"
+        ],
+        "summary": "Revoke",
+        "operationId": "revoke_v1_mandates__mandate_id__revoke_post",
+        "parameters": [
+          {
+            "name": "mandate_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Mandate Id"
+            }
+          },
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevokeIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Revoke V1 Mandates  Mandate Id  Revoke Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/transactions": {
+      "get": {
+        "tags": [
+          "transactions"
+        ],
+        "summary": "List Transactions",
+        "operationId": "list_transactions_v1_transactions_get",
+        "parameters": [
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/TxState"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "State"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "default": 200,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "title": "Response List Transactions V1 Transactions Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/transactions/{tx_id}": {
+      "get": {
+        "tags": [
+          "transactions"
+        ],
+        "summary": "Get Transaction",
+        "operationId": "get_transaction_v1_transactions__tx_id__get",
+        "parameters": [
+          {
+            "name": "tx_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tx Id"
+            }
+          },
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Transaction V1 Transactions  Tx Id  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/state-machine": {
+      "get": {
+        "tags": [
+          "transactions"
+        ],
+        "summary": "State Machine",
+        "operationId": "state_machine_v1_state_machine_get",
+        "parameters": [
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response State Machine V1 State Machine Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/transactions/{tx_id}/approve": {
+      "post": {
+        "tags": [
+          "transactions"
+        ],
+        "summary": "Approve",
+        "operationId": "approve_v1_transactions__tx_id__approve_post",
+        "parameters": [
+          {
+            "name": "tx_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tx Id"
+            }
+          },
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecisionIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/transactions/{tx_id}/reject": {
+      "post": {
+        "tags": [
+          "transactions"
+        ],
+        "summary": "Reject",
+        "operationId": "reject_v1_transactions__tx_id__reject_post",
+        "parameters": [
+          {
+            "name": "tx_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tx Id"
+            }
+          },
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecisionIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/incidents": {
+      "get": {
+        "tags": [
+          "incidents"
+        ],
+        "summary": "List Incidents",
+        "operationId": "list_incidents_v1_incidents_get",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/IncidentStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "title": "Response List Incidents V1 Incidents Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/incidents/{inc_id}": {
+      "get": {
+        "tags": [
+          "incidents"
+        ],
+        "summary": "Get Incident",
+        "operationId": "get_incident_v1_incidents__inc_id__get",
+        "parameters": [
+          {
+            "name": "inc_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Inc Id"
+            }
+          },
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Incident V1 Incidents  Inc Id  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/recovery": {
+      "get": {
+        "tags": [
+          "recovery"
+        ],
+        "summary": "List Recovery",
+        "operationId": "list_recovery_v1_recovery_get",
+        "parameters": [
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "title": "Response List Recovery V1 Recovery Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/recovery/run-due": {
+      "post": {
+        "tags": [
+          "recovery"
+        ],
+        "summary": "Run Due",
+        "operationId": "run_due_v1_recovery_run_due_post",
+        "parameters": [
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Run Due V1 Recovery Run Due Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/claims": {
+      "get": {
+        "tags": [
+          "claims"
+        ],
+        "summary": "List Claims",
+        "operationId": "list_claims_v1_claims_get",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/ClaimStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "title": "Response List Claims V1 Claims Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/claims/{claim_id}": {
+      "get": {
+        "tags": [
+          "claims"
+        ],
+        "summary": "Get Claim",
+        "operationId": "get_claim_v1_claims__claim_id__get",
+        "parameters": [
+          {
+            "name": "claim_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Claim Id"
+            }
+          },
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Claim V1 Claims  Claim Id  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/claims/{claim_id}/review": {
+      "post": {
+        "tags": [
+          "claims"
+        ],
+        "summary": "Review Claim",
+        "operationId": "review_claim_v1_claims__claim_id__review_post",
+        "parameters": [
+          {
+            "name": "claim_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Claim Id"
+            }
+          },
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Review Claim V1 Claims  Claim Id  Review Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/policies/protection": {
+      "get": {
+        "tags": [
+          "claims"
+        ],
+        "summary": "Protection Policies",
+        "operationId": "protection_policies_v1_policies_protection_get",
+        "parameters": [
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "title": "Response Protection Policies V1 Policies Protection Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ledger": {
+      "get": {
+        "tags": [
+          "claims"
+        ],
+        "summary": "Ledger Entries",
+        "operationId": "ledger_entries_v1_ledger_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "default": 200,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Ledger Entries V1 Ledger Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/audit": {
+      "get": {
+        "tags": [
+          "audit"
+        ],
+        "summary": "Audit Trail",
+        "operationId": "audit_trail_v1_audit_get",
+        "parameters": [
+          {
+            "name": "entity_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Entity Id"
+            }
+          },
+          {
+            "name": "correlation_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Correlation Id"
+            }
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Action"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 2000,
+              "default": 300,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "title": "Response Audit Trail V1 Audit Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/audit/verify": {
+      "get": {
+        "tags": [
+          "audit"
+        ],
+        "summary": "Audit Verify",
+        "operationId": "audit_verify_v1_audit_verify_get",
+        "parameters": [
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Audit Verify V1 Audit Verify Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/metrics/overview": {
+      "get": {
+        "tags": [
+          "metrics"
+        ],
+        "summary": "Overview",
+        "operationId": "overview_v1_metrics_overview_get",
+        "parameters": [
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Overview V1 Metrics Overview Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/notifications": {
+      "get": {
+        "tags": [
+          "audit"
+        ],
+        "summary": "Notifications",
+        "operationId": "notifications_v1_notifications_get",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "title": "Response Notifications V1 Notifications Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/stream": {
+      "get": {
+        "tags": [
+          "metrics"
+        ],
+        "summary": "Stream",
+        "description": "Server-Sent Events from the transactional outbox (domain_events).",
+        "operationId": "stream_v1_stream_get",
+        "parameters": [
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "title": "After"
+            }
+          },
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/demo/scenarios/{n}": {
+      "post": {
+        "tags": [
+          "demo"
+        ],
+        "summary": "Run Scenario",
+        "operationId": "run_scenario_v1_demo_scenarios__n__post",
+        "parameters": [
+          {
+            "name": "n",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "N"
+            }
+          },
+          {
+            "name": "x-admin-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScenarioResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AgentIn": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "operator": {
+            "type": "string",
+            "title": "Operator"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "operator"
+        ],
+        "title": "AgentIn"
+      },
+      "AmendIn": {
+        "properties": {
+          "intent_text": {
+            "type": "string",
+            "title": "Intent Text"
+          },
+          "constraints": {
+            "$ref": "#/components/schemas/MandateConstraints"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "intent_text",
+          "constraints"
+        ],
+        "title": "AmendIn"
+      },
+      "AttemptRequest": {
+        "properties": {
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 8,
+            "title": "Idempotency Key"
+          },
+          "mandate_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mandate Id"
+          },
+          "merchant_id": {
+            "type": "string",
+            "title": "Merchant Id"
+          },
+          "sku": {
+            "type": "string",
+            "title": "Sku"
+          },
+          "product_name": {
+            "type": "string",
+            "title": "Product Name"
+          },
+          "product_category": {
+            "type": "string",
+            "title": "Product Category"
+          },
+          "attributes": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Attributes",
+            "default": {}
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Quantity"
+          },
+          "unit_amount_cents": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Unit Amount Cents"
+          },
+          "amount_cents": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Amount Cents"
+          },
+          "currency": {
+            "type": "string",
+            "maxLength": 3,
+            "minLength": 3,
+            "title": "Currency"
+          },
+          "auto_execute": {
+            "type": "boolean",
+            "title": "Auto Execute",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "idempotency_key",
+          "merchant_id",
+          "sku",
+          "product_name",
+          "product_category",
+          "quantity",
+          "unit_amount_cents",
+          "amount_cents",
+          "currency"
+        ],
+        "title": "AttemptRequest"
+      },
+      "AttemptResult": {
+        "properties": {
+          "transaction_id": {
+            "type": "string",
+            "title": "Transaction Id"
+          },
+          "state": {
+            "$ref": "#/components/schemas/TxState"
+          },
+          "decision": {
+            "$ref": "#/components/schemas/Outcome"
+          },
+          "violations": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Violations"
+          },
+          "replayed": {
+            "type": "boolean",
+            "title": "Replayed",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "transaction_id",
+          "state",
+          "decision",
+          "violations"
+        ],
+        "title": "AttemptResult"
+      },
+      "ClaimStatus": {
+        "type": "string",
+        "enum": [
+          "SUBMITTED",
+          "IN_REVIEW",
+          "APPROVED",
+          "REJECTED",
+          "PAID"
+        ],
+        "title": "ClaimStatus"
+      },
+      "CustomerIn": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "email": {
+            "type": "string",
+            "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$",
+            "title": "Email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "email"
+        ],
+        "title": "CustomerIn"
+      },
+      "DecisionIn": {
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "title": "Customer Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "customer_id"
+        ],
+        "title": "DecisionIn"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "IncidentStatus": {
+        "type": "string",
+        "enum": [
+          "OPEN",
+          "RECOVERING",
+          "RECOVERED",
+          "ESCALATED",
+          "CLOSED"
+        ],
+        "title": "IncidentStatus"
+      },
+      "IntentIn": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 3,
+            "title": "Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "title": "IntentIn"
+      },
+      "MandateConstraints": {
+        "properties": {
+          "max_amount_cents": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Max Amount Cents"
+          },
+          "currency": {
+            "type": "string",
+            "maxLength": 3,
+            "minLength": 3,
+            "title": "Currency"
+          },
+          "max_quantity": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Max Quantity"
+          },
+          "max_executions": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Max Executions",
+            "default": 1
+          },
+          "allowed_merchants": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Allowed Merchants"
+          },
+          "product": {
+            "$ref": "#/components/schemas/ProductConstraint"
+          },
+          "over_budget_action": {
+            "type": "string",
+            "enum": [
+              "REQUIRE_APPROVAL",
+              "BLOCK"
+            ],
+            "title": "Over Budget Action",
+            "default": "REQUIRE_APPROVAL"
+          },
+          "hard_ceiling_pct": {
+            "type": "integer",
+            "maximum": 1000.0,
+            "minimum": 0.0,
+            "title": "Hard Ceiling Pct",
+            "default": 50
+          }
+        },
+        "type": "object",
+        "required": [
+          "max_amount_cents",
+          "currency",
+          "max_quantity",
+          "product"
+        ],
+        "title": "MandateConstraints",
+        "description": "What a customer delegated to an agent. Signed and versioned; never mutated in place."
+      },
+      "MandateIn": {
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "title": "Customer Id"
+          },
+          "agent_id": {
+            "type": "string",
+            "title": "Agent Id"
+          },
+          "intent_text": {
+            "type": "string",
+            "title": "Intent Text"
+          },
+          "constraints": {
+            "$ref": "#/components/schemas/MandateConstraints"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "customer_id",
+          "agent_id",
+          "intent_text",
+          "constraints"
+        ],
+        "title": "MandateIn"
+      },
+      "Outcome": {
+        "type": "string",
+        "enum": [
+          "ALLOW",
+          "REQUIRE_APPROVAL",
+          "BLOCK"
+        ],
+        "title": "Outcome"
+      },
+      "ProductConstraint": {
+        "properties": {
+          "category": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Category"
+          },
+          "required_attributes": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Required Attributes",
+            "default": {}
+          },
+          "sku_allowlist": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sku Allowlist"
+          }
+        },
+        "type": "object",
+        "required": [
+          "category"
+        ],
+        "title": "ProductConstraint"
+      },
+      "ReviewIn": {
+        "properties": {
+          "approve": {
+            "type": "boolean",
+            "title": "Approve"
+          },
+          "reviewer": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Reviewer"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note",
+            "default": ""
+          },
+          "amount_cents": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount Cents"
+          }
+        },
+        "type": "object",
+        "required": [
+          "approve",
+          "reviewer"
+        ],
+        "title": "ReviewIn"
+      },
+      "RevokeIn": {
+        "properties": {
+          "reason": {
+            "type": "string",
+            "title": "Reason",
+            "default": "revoked by customer"
+          }
+        },
+        "type": "object",
+        "title": "RevokeIn"
+      },
+      "ScenarioResult": {
+        "properties": {
+          "scenario": {
+            "type": "integer",
+            "title": "Scenario"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "expected": {
+            "type": "string",
+            "title": "Expected"
+          },
+          "correlation_id": {
+            "type": "string",
+            "title": "Correlation Id"
+          },
+          "customer_id": {
+            "type": "string",
+            "title": "Customer Id"
+          },
+          "mandate_id": {
+            "type": "string",
+            "title": "Mandate Id"
+          },
+          "transaction_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Transaction Ids"
+          },
+          "final_states": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Final States"
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/Step"
+            },
+            "type": "array",
+            "title": "Steps"
+          }
+        },
+        "type": "object",
+        "required": [
+          "scenario",
+          "title",
+          "expected",
+          "correlation_id",
+          "customer_id",
+          "mandate_id",
+          "transaction_ids",
+          "final_states",
+          "steps"
+        ],
+        "title": "ScenarioResult"
+      },
+      "Step": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "title": "Action"
+          },
+          "entity_id": {
+            "type": "string",
+            "title": "Entity Id"
+          },
+          "actor": {
+            "type": "string",
+            "title": "Actor"
+          },
+          "at": {
+            "type": "string",
+            "title": "At"
+          },
+          "data": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "required": [
+          "action",
+          "entity_id",
+          "actor",
+          "at",
+          "data"
+        ],
+        "title": "Step"
+      },
+      "TxState": {
+        "type": "string",
+        "enum": [
+          "CREATED",
+          "AWAITING_APPROVAL",
+          "AUTHORIZED",
+          "EXECUTING",
+          "COMPLETED",
+          "BLOCKED",
+          "FAILED",
+          "DISPUTED",
+          "RECOVERY_PENDING",
+          "REFUNDED"
+        ],
+        "title": "TxState"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}
