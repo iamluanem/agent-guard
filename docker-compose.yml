@@ -1,0 +1,69 @@
+name: agentguard
+
+x-backend-env: &backend-env
+  AG_ENV: development
+  AG_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-agentguard}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-agentguard}
+  AG_REDIS_URL: redis://redis:6379/0
+  AG_SIGNING_SECRET: ${AG_SIGNING_SECRET:?set AG_SIGNING_SECRET in .env}
+  AG_WEBHOOK_SECRET: ${AG_WEBHOOK_SECRET:?set AG_WEBHOOK_SECRET in .env}
+  AG_ADMIN_API_KEY: ${AG_ADMIN_API_KEY:-}
+  AG_LLM_PROVIDER: ${AG_LLM_PROVIDER:-rules}
+  AG_LLM_MODEL: ${AG_LLM_MODEL:-claude-sonnet-5-5}
+  AG_ANTHROPIC_API_KEY: ${AG_ANTHROPIC_API_KEY:-}
+  AG_OPENAI_API_KEY: ${AG_OPENAI_API_KEY:-}
+  AG_OTEL_EXPORTER_ENDPOINT: ${AG_OTEL_EXPORTER_ENDPOINT:-}
+  AG_CORS_ORIGINS: '["http://localhost:3000"]'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-agentguard}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-agentguard}
+    volumes: [pgdata:/var/lib/postgresql/data]
+    ports: ["5432:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-agentguard}"]
+      interval: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      retries: 20
+
+  migrate:
+    build: ./backend
+    environment: *backend-env
+    command: sh -c "alembic upgrade head && python -m app.seed"
+    depends_on:
+      postgres: {condition: service_healthy}
+
+  api:
+    build: ./backend
+    environment: *backend-env
+    ports: ["8000:8000"]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+
+  worker:
+    build: ./backend
+    environment: *backend-env
+    command: python -m app.worker
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.60
+    profiles: [observability]
+    environment: {COLLECTOR_OTLP_ENABLED: "true"}
+    ports: ["16686:16686", "4318:4318"]
+
+volumes:
+  pgdata:
