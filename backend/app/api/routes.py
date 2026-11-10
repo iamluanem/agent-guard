@@ -419,7 +419,7 @@ async def stream(request: Request, after: int = 0) -> StreamingResponse:
         while not await request.is_disconnected():
             for e in await asyncio.to_thread(fetch, cursor):
                 cursor = e.id
-                yield f"id: {e.id}\nevent: {e.type}\ndata: {json.dumps(row(e), default=str)}\n\n"
+                yield f"id: {e.id}\ndata: {json.dumps(row(e), default=str)}\n\n"
             yield ": keep-alive\n\n"
             await asyncio.sleep(1)
 

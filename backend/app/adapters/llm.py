@@ -99,12 +99,15 @@ class RulesProvider:
     def _narrative(ev: dict) -> IncidentNarrative:
         amt = ev.get("disputed_amount_cents", 0) / 100
         cur = ev.get("currency", "USD")
-        findings = "; ".join(f"{f['code'].lower().replace('_', ' ')} (expected {f.get('expected')}, "
-                             f"got {f.get('actual')})" for f in ev.get("findings", []))
+        def val(code: str, v):
+            return f"{int(v) / 100:.2f} {cur}" if code == "OVERCHARGE" and str(v).isdigit() else v
+
+        findings = "; ".join(f"{f['code'].lower().replace('_', ' ')} (expected {val(f['code'], f.get('expected'))}, "
+                             f"got {val(f['code'], f.get('actual'))})" for f in ev.get("findings", []))
         action = ("Request merchant cancellation" if ev.get("merchant_supports_cancellation")
                   else "Request a refund from the merchant")
         return IncidentNarrative(
-            summary=f"{ev.get('incident_type', 'Mismatch').replace('_', ' ').title()} on transaction "
+            summary=f"{ev.get('incident_type', 'Mismatch').replace('_', ' ').capitalize()} on transaction "
                     f"{ev.get('transaction_id')}: {findings}. Disputed amount {amt:.2f} {cur}.",
             recommended_action=f"{action} for {amt:.2f} {cur}; escalate to a protection claim if it fails.",
             customer_message=f"We detected a problem with a purchase your agent made and started recovering "
